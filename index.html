@@ -23,26 +23,60 @@
 </head>
 <body class="login-active">
 
-<!-- ═══════════════ LOGIN OVERLAY ═══════════════ -->
+<!-- ═══════════════ LOGIN / SIGNUP OVERLAY ═══════════════ -->
 <div id="loginOverlay" class="login-overlay">
     <div class="login-card">
         <div class="login-header">
             <div class="login-logo-icon">🛰️</div>
             <h2>GeoGuard AI</h2>
-            <p>Access the Satellite Surveillance Network</p>
+            <p>Satellite Surveillance Network</p>
         </div>
+
+        <!-- Auth Tabs: Sign In vs Sign Up -->
+        <div class="auth-tabs">
+            <button type="button" class="auth-tab active" id="tabSignIn">Sign In</button>
+            <button type="button" class="auth-tab" id="tabSignUp">Sign Up</button>
+        </div>
+
+        <!-- 1. SIGN IN FORM -->
         <form id="loginForm" class="login-form">
             <div class="form-group">
                 <label for="username">Operator ID / Email</label>
-                <input type="text" id="username" value="operator@geoguard.ai" placeholder="Enter your credentials" required>
+                <input type="text" id="username" value="operator@geoguard.ai" placeholder="Enter your email or ID" required>
             </div>
             <div class="form-group">
                 <label for="password">Security Key</label>
                 <input type="password" id="password" value="demo1234" placeholder="••••••••" required>
             </div>
-            <button type="submit" class="btn-login">Authenticate & Enter (Demo)</button>
+            <button type="submit" class="btn-login" id="signInSubmitBtn">🚀 Authenticate & Enter</button>
+            <button type="button" class="btn-instant-demo" id="btnInstantDemo">⚡ Instant Demo Access (No Password)</button>
             <div class="login-footer">
-                <a href="#">Request Access</a> | <a href="#">Forgot Security Key?</a>
+                Don't have an account? <a href="#" id="linkToSignUp">Sign Up Here</a>
+            </div>
+        </form>
+
+        <!-- 2. SIGN UP FORM -->
+        <form id="signUpForm" class="login-form" style="display: none;">
+            <div class="form-group">
+                <label for="signupName">Full Name / Operator ID</label>
+                <input type="text" id="signupName" placeholder="e.g. Sudharsana" required>
+            </div>
+            <div class="form-group">
+                <label for="signupEmail">Official Email</label>
+                <input type="email" id="signupEmail" placeholder="operator@mining.gov.in" required>
+            </div>
+            <div class="form-group">
+                <label for="signupOrg">Agency / Department</label>
+                <input type="text" id="signupOrg" placeholder="e.g. State Mining Surveillance" value="Mining Surveillance Cell">
+            </div>
+            <div class="form-group">
+                <label for="signupPassword">Security Key / Password</label>
+                <input type="password" id="signupPassword" placeholder="Create your key" required>
+            </div>
+            <button type="submit" class="btn-login" id="signUpSubmitBtn">✨ Create Account & Launch</button>
+            <button type="button" class="btn-instant-demo" id="btnInstantDemo2">⚡ Instant Demo Access</button>
+            <div class="login-footer">
+                Already registered? <a href="#" id="linkToSignIn">Sign In Here</a>
             </div>
         </form>
     </div>

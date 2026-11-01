@@ -152,36 +152,117 @@ function updateChartThemes(theme) {
 }
 
 
-// ─── Login Logic ────────────────────────────────────────────────
+// ─── Login & Sign Up Logic ───────────────────────────────────────
 function initLogin() {
     const loginForm = document.getElementById('loginForm');
+    const signUpForm = document.getElementById('signUpForm');
     const loginOverlay = document.getElementById('loginOverlay');
-    
+    const tabSignIn = document.getElementById('tabSignIn');
+    const tabSignUp = document.getElementById('tabSignUp');
+    const linkToSignUp = document.getElementById('linkToSignUp');
+    const linkToSignIn = document.getElementById('linkToSignIn');
+    const btnInstantDemo = document.getElementById('btnInstantDemo');
+    const btnInstantDemo2 = document.getElementById('btnInstantDemo2');
+
+    // Auto-login if previously logged in
+    if (localStorage.getItem('geoguard_logged_in') === 'true' && loginOverlay) {
+        loginOverlay.style.display = 'none';
+        loginOverlay.style.visibility = 'hidden';
+        loginOverlay.style.pointerEvents = 'none';
+        document.body.classList.remove('login-active');
+    }
+
+    // Helper to dismiss login overlay safely
+    function dismissOverlay(welcomeMessage) {
+        if (!loginOverlay) return;
+        loginOverlay.style.opacity = '0';
+        loginOverlay.style.pointerEvents = 'none';
+        document.body.classList.remove('login-active');
+        localStorage.setItem('geoguard_logged_in', 'true');
+        setTimeout(() => {
+            loginOverlay.style.display = 'none';
+            loginOverlay.style.visibility = 'hidden';
+        }, 350);
+        showToast(welcomeMessage || 'Welcome to GeoGuard AI Command Center');
+    }
+
+    // Tab switching helpers
+    function showSignIn() {
+        if (loginForm) loginForm.style.display = 'block';
+        if (signUpForm) signUpForm.style.display = 'none';
+        if (tabSignIn) tabSignIn.classList.add('active');
+        if (tabSignUp) tabSignUp.classList.remove('active');
+    }
+
+    function showSignUp() {
+        if (loginForm) loginForm.style.display = 'none';
+        if (signUpForm) signUpForm.style.display = 'block';
+        if (tabSignUp) tabSignUp.classList.add('active');
+        if (tabSignIn) tabSignIn.classList.remove('active');
+    }
+
+    if (tabSignIn) tabSignIn.addEventListener('click', showSignIn);
+    if (tabSignUp) tabSignUp.addEventListener('click', showSignUp);
+    if (linkToSignUp) linkToSignUp.addEventListener('click', (e) => { e.preventDefault(); showSignUp(); });
+    if (linkToSignIn) linkToSignIn.addEventListener('click', (e) => { e.preventDefault(); showSignIn(); });
+
+    // Instant Demo buttons (1-click bypass)
+    if (btnInstantDemo) {
+        btnInstantDemo.addEventListener('click', (e) => {
+            e.preventDefault();
+            dismissOverlay('⚡ Instant Demo Access activated — Welcome!');
+        });
+    }
+    if (btnInstantDemo2) {
+        btnInstantDemo2.addEventListener('click', (e) => {
+            e.preventDefault();
+            dismissOverlay('⚡ Instant Demo Access activated — Welcome!');
+        });
+    }
+
+    // Sign In Submit
     if (loginForm) {
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            // Simulate authentication delay
             const btn = loginForm.querySelector('.btn-login');
             const originalText = btn.innerText;
             btn.innerText = 'Authenticating...';
             btn.style.opacity = '0.8';
             btn.disabled = true;
-            
+
+            const username = document.getElementById('username').value.trim() || 'Operator';
+
             setTimeout(() => {
-                loginOverlay.style.opacity = '0';
-                loginOverlay.style.visibility = 'hidden';
-                document.body.classList.remove('login-active');
-                
-                // Show a welcome toast
-                showToast('Welcome to GeoGuard AI Command Center');
-                
-                // Reset button just in case
-                setTimeout(() => {
-                    btn.innerText = originalText;
-                    btn.style.opacity = '1';
-                    btn.disabled = false;
-                }, 1000);
-            }, 1200);
+                btn.innerText = originalText;
+                btn.style.opacity = '1';
+                btn.disabled = false;
+                dismissOverlay(`👋 Welcome back, ${username}!`);
+            }, 600);
+        });
+    }
+
+    // Sign Up Submit
+    if (signUpForm) {
+        signUpForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const btn = signUpForm.querySelector('.btn-login');
+            const originalText = btn.innerText;
+            btn.innerText = 'Registering Account...';
+            btn.style.opacity = '0.8';
+            btn.disabled = true;
+
+            const name = document.getElementById('signupName').value.trim() || 'Operator';
+            const email = document.getElementById('signupEmail').value.trim();
+            const org = document.getElementById('signupOrg').value.trim();
+
+            localStorage.setItem('geoguard_user_profile', JSON.stringify({ name, email, org }));
+
+            setTimeout(() => {
+                btn.innerText = originalText;
+                btn.style.opacity = '1';
+                btn.disabled = false;
+                dismissOverlay(`🎉 Account created! Welcome, ${name}.`);
+            }, 700);
         });
     }
 }
