@@ -1,0 +1,138 @@
+[
+  {
+    "zone_id": "PZ-001",
+    "name": "Sandur Hills Protected Forest",
+    "state": "Karnataka",
+    "district": "Bellary",
+    "type": "Protected Forest",
+    "center_lat": 15.0855,
+    "center_lng": 76.5543,
+    "radius_km": 15,
+    "boundary": [
+      [15.15, 76.48], [15.18, 76.55], [15.15, 76.62],
+      [15.08, 76.65], [15.01, 76.62], [14.98, 76.55],
+      [15.01, 76.48], [15.08, 76.45], [15.15, 76.48]
+    ],
+    "status": "No Mining Zone",
+    "gazette_notification": "KAR/FOR/2019/1234"
+  },
+  {
+    "zone_id": "PZ-002",
+    "name": "Dalma Wildlife Sanctuary",
+    "state": "Jharkhand",
+    "district": "East Singhbhum",
+    "type": "Wildlife Sanctuary",
+    "center_lat": 22.7833,
+    "center_lng": 86.3167,
+    "radius_km": 12,
+    "boundary": [
+      [22.85, 86.25], [22.88, 86.32], [22.85, 86.39],
+      [22.78, 86.42], [22.71, 86.39], [22.68, 86.32],
+      [22.71, 86.25], [22.78, 86.22], [22.85, 86.25]
+    ],
+    "status": "No Mining Zone",
+    "gazette_notification": "JH/WL/2018/5678"
+  },
+  {
+    "zone_id": "PZ-003",
+    "name": "Mhadei Wildlife Sanctuary",
+    "state": "Goa",
+    "district": "North Goa",
+    "type": "Wildlife Sanctuary",
+    "center_lat": 15.5000,
+    "center_lng": 74.1000,
+    "radius_km": 10,
+    "boundary": [
+      [15.55, 74.05], [15.58, 74.10], [15.55, 74.15],
+      [15.50, 74.18], [15.45, 74.15], [15.42, 74.10],
+      [15.45, 74.05], [15.50, 74.02], [15.55, 74.05]
+    ],
+    "status": "No Mining Zone",
+    "gazette_notification": "GOA/WL/2020/3456"
+  },
+  {
+    "zone_id": "PZ-004",
+    "name": "Simlipal Tiger Reserve",
+    "state": "Odisha",
+    "district": "Mayurbhanj",
+    "type": "Tiger Reserve",
+    "center_lat": 21.8333,
+    "center_lng": 86.3333,
+    "radius_km": 25,
+    "boundary": [
+      [21.95, 86.20], [22.00, 86.33], [21.95, 86.46],
+      [21.83, 86.50], [21.71, 86.46], [21.66, 86.33],
+      [21.71, 86.20], [21.83, 86.16], [21.95, 86.20]
+    ],
+    "status": "No Mining Zone",
+    "gazette_notification": "OD/TR/2017/7890"
+  },
+  {
+    "zone_id": "PZ-005",
+    "name": "Sundarbans Biosphere Reserve",
+    "state": "West Bengal",
+    "district": "South 24 Parganas",
+    "type": "Biosphere Reserve",
+    "center_lat": 21.9497,
+    "center_lng": 88.8989,
+    "radius_km": 30,
+    "boundary": [
+      [22.10, 88.75], [22.15, 88.90], [22.10, 89.05],
+      [21.95, 89.10], [21.80, 89.05], [21.75, 88.90],
+      [21.80, 88.75], [21.95, 88.70], [22.10, 88.75]
+    ],
+    "status": "No Mining Zone",
+    "gazette_notification": "WB/BR/2016/2345"
+  },
+  {
+    "zone_id": "PZ-006",
+    "name": "Aravalli Hills Eco-Sensitive Zone",
+    "state": "Rajasthan",
+    "district": "Udaipur",
+    "type": "Eco-Sensitive Zone",
+    "center_lat": 24.5854,
+    "center_lng": 73.7125,
+    "radius_km": 18,
+    "boundary": [
+      [24.70, 73.60], [24.75, 73.71], [24.70, 73.82],
+      [24.59, 73.86], [24.47, 73.82], [24.42, 73.71],
+      [24.47, 73.60], [24.59, 73.56], [24.70, 73.60]
+    ],
+    "status": "No Mining Zone",
+    "gazette_notification": "RJ/ESZ/2021/6789"
+  },
+  {
+    "zone_id": "PZ-007",
+    "name": "Silent Valley National Park",
+    "state": "Kerala",
+    "district": "Palakkad",
+    "type": "National Park",
+    "center_lat": 11.0833,
+    "center_lng": 76.4167,
+    "radius_km": 8,
+    "boundary": [
+      [11.13, 76.37], [11.15, 76.42], [11.13, 76.47],
+      [11.08, 76.49], [11.03, 76.47], [11.01, 76.42],
+      [11.03, 76.37], [11.08, 76.35], [11.13, 76.37]
+    ],
+    "status": "No Mining Zone",
+    "gazette_notification": "KL/NP/2015/4567"
+  },
+  {
+    "zone_id": "PZ-008",
+    "name": "Western Ghats Coimbatore Sector",
+    "state": "Tamil Nadu",
+    "district": "Coimbatore",
+    "type": "Eco-Sensitive Zone",
+    "center_lat": 11.0168,
+    "center_lng": 76.9558,
+    "radius_km": 14,
+    "boundary": [
+      [11.10, 76.88], [11.13, 76.96], [11.10, 77.03],
+      [11.02, 77.06], [10.93, 77.03], [10.90, 76.96],
+      [10.93, 76.88], [11.02, 76.85], [11.10, 76.88]
+    ],
+    "status": "No Mining Zone",
+    "gazette_notification": "TN/ESZ/2022/8901"
+  }
+]

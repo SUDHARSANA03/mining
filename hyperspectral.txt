@@ -1,0 +1,3 @@
+# 
+
+{"message":"HyperSense AI - Hyperspectral Anomaly Detection Backend API","status":"running","database":"SQLite data/hypersense.db","endpoints":["/analyze-demo","/analyze-upload","/inspect-upload","/api/auth/signup","/api/auth/login","/api/auth/me","/api/history","/api/dossiers"]}

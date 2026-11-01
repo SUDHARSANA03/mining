@@ -1,0 +1,29 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+backend/venv/
+
+# Uploads & Temp files (keep directory via .gitkeep)
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Database
+backend/mining_detection.db
+*.sqlite3
+*.db
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE Files
+.vscode/
+.idea/
