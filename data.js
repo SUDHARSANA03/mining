@@ -1077,4 +1077,4 @@ window.GEO_DATA = {
       "center_lng": 76.4167
     }
   ]
-};\n
+};

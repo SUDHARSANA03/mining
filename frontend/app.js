@@ -913,7 +913,6 @@ async function runClientSideSatelliteAnalysis(file) {
     await new Promise(r => setTimeout(r, 1600));
 
     // Generate change map heatmap
-    const imgElement = document.getElementById('originalPreview');
     const changeMapB64 = generateChangeDetectionHeatmap(imgElement, disturbances);
 
     const totalArea = disturbances.reduce((acc, d) => acc + d.area_sqkm, 0);
