@@ -216,8 +216,15 @@
                         <div class="drop-zone-icon">📡</div>
                         <h3>Drop satellite image here</h3>
                         <p>Supports PNG, JPG, TIFF — Sentinel-2 imagery recommended (10m resolution)</p>
-                        <button class="browse-btn" id="browseBtn">Browse Files</button>
+                        <button class="browse-btn" id="browseBtn" type="button">Browse Files</button>
                         <input type="file" id="fileInput" accept=".png,.jpg,.jpeg,.tif,.tiff,.bmp">
+                        <div class="sample-images-bar" style="margin-top: 1.25rem; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: center; z-index: 5; position: relative;">
+                            <span style="font-size: 0.75rem; color: var(--text-muted); width: 100%; text-align: center; margin-bottom: 2px;">⚡ Or load instant demo satellite imagery:</span>
+                            <button type="button" class="btn-sample" data-sample="sample_images/1_active_iron_ore_mine.png" data-name="1_active_iron_ore_mine.png">⛏️ Iron Ore Mine</button>
+                            <button type="button" class="btn-sample" data-sample="sample_images/2_dense_forest_no_mining.png" data-name="2_dense_forest_no_mining.png">🌲 Dense Forest</button>
+                            <button type="button" class="btn-sample" data-sample="sample_images/3_illegal_sand_mining_river.png" data-name="3_illegal_sand_mining_river.png">🌊 River Sand Mining</button>
+                            <button type="button" class="btn-sample" data-sample="sample_images/4_mixed_forest_quarry.png" data-name="4_mixed_forest_quarry.png">⛰️ Forest Quarry</button>
+                        </div>
                     </div>
 
                     <!-- Image Preview -->
@@ -569,6 +576,7 @@
     </aside>
 </div>
 
+<script src="data.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

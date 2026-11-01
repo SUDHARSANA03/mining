@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoGuard AI — Satellite-Based Illegal Mining Detection</title>
+    <meta name="description" content="AI-powered geospatial monitoring tool for detecting illegal mining activities using satellite imagery analysis and government record cross-referencing.">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <!-- App CSS -->
+    <link rel="stylesheet" href="index.css">
+</head>
+<body class="login-active">
+
+<!-- ═══════════════ LOGIN OVERLAY ═══════════════ -->
+<div id="loginOverlay" class="login-overlay">
+    <div class="login-card">
+        <div class="login-header">
+            <div class="login-logo-icon">🛰️</div>
+            <h2>GeoGuard AI</h2>
+            <p>Access the Satellite Surveillance Network</p>
+        </div>
+        <form id="loginForm" class="login-form">
+            <div class="form-group">
+                <label for="username">Operator ID / Email</label>
+                <input type="text" id="username" value="operator@geoguard.ai" placeholder="Enter your credentials" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Security Key</label>
+                <input type="password" id="password" value="demo1234" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="btn-login">Authenticate & Enter (Demo)</button>
+            <div class="login-footer">
+                <a href="#">Request Access</a> | <a href="#">Forgot Security Key?</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ═══════════════ APP CONTAINER ═══════════════ -->
+<div class="app-container">
+
+    <!-- ─── LEFT SIDEBAR ─── -->
+    <aside class="left-sidebar">
+        <div class="logo">
+            <div class="logo-icon">🛰️</div>
+            <div class="logo-text">
+                <h1>GeoGuard</h1>
+            </div>
+        </div>
+
+        <div class="sidebar-section-title">Explore</div>
+        <nav class="sidebar-nav" id="mainNav">
+            <button class="nav-btn active" data-view="dashboard" id="navDashboard">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">Dashboard</span>
+            </button>
+            <button class="nav-btn" data-view="analyze" id="navAnalyze">
+                <span class="nav-icon">🔬</span>
+                <span class="nav-text">Analyze Image</span>
+            </button>
+            <button class="nav-btn" data-view="map" id="navMap">
+                <span class="nav-icon">🗺️</span>
+                <span class="nav-text">Map View</span>
+            </button>
+            <button class="nav-btn" data-view="records" id="navRecords">
+                <span class="nav-icon">📋</span>
+                <span class="nav-text">Govt Records</span>
+            </button>
+            <button class="nav-btn" data-view="reports" id="navReports">
+                <span class="nav-icon">📄</span>
+                <span class="nav-text">Reports</span>
+            </button>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="model-status">
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    <span>ML Model Active</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ─── MAIN CONTENT ─── -->
+    <main class="main-content">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <div class="search-bar">
+                <span class="search-icon">🔍</span>
+                <input type="text" placeholder="Search coordinates, reports, leases...">
+            </div>
+            <div class="top-icons">
+                <button class="icon-btn" title="Wallet">💳</button>
+                <button class="icon-btn" title="Notifications">🔔</button>
+                <button class="icon-btn" title="Chat">💬</button>
+                <button id="themeToggle" class="icon-btn" title="Toggle Theme">🌓</button>
+            </div>
+        </header>
+
+        <!-- ─── DASHBOARD VIEW ─── -->
+        <section class="view-section active" id="viewDashboard">
+            
+            <!-- Hero Banner -->
+            <div class="hero-banner">
+                <div class="hero-content">
+                    <h2>Monitor Mining Activities Globally</h2>
+                    <p>AI-powered geospatial analysis and anomaly detection</p>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <h3>Featured Analysis</h3>
+                <a href="#" class="see-all">See all</a>
+            </div>
+
+            <!-- Dashboard Stats changed to Featured Cards -->
+            <div class="featured-cards-grid" id="statsRow">
+                <div class="featured-card">
+                    <div class="featured-bg" style="background: linear-gradient(135deg, rgba(167,139,250,0.2) 0%, rgba(96,165,250,0.2) 100%);"></div>
+                    <div class="featured-content">
+                        <h4>Total Analyses</h4>
+                        <p>Processed satellite imagery across regions.</p>
+                        <div class="featured-stats">
+                            <span><span class="stat-icon">🔍</span> <span id="statAnalyses">0</span> Scans</span>
+                            <span><span class="stat-icon">✅</span> <span id="statRecall">92.5%</span> Recall</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="featured-card">
+                    <div class="featured-bg" style="background: linear-gradient(135deg, rgba(52,211,153,0.2) 0%, rgba(16,185,129,0.2) 100%);"></div>
+                    <div class="featured-content">
+                        <h4>Illegal Activities</h4>
+                        <p>Detected unauthorized mining operations.</p>
+                        <div class="featured-stats">
+                            <span><span class="stat-icon" style="color:var(--accent-red)">🚨</span> <span id="statIllegal">0</span> Found</span>
+                            <span><span class="stat-icon">📏</span> <span id="statAccuracy">8.5m</span> Acc.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-header" style="margin-top: 2rem;">
+                <h3>Popular Right Now</h3>
+                <a href="#" class="see-all">See all</a>
+            </div>
+
+            <!-- Charts as Popular Cards -->
+            <div class="popular-cards-grid">
+                <div class="popular-card animate-in">
+                    <div class="popular-info">
+                        <h4>Historical Trends</h4>
+                        <p>Incident reports over time.</p>
+                    </div>
+                    <div class="popular-chart">
+                        <canvas id="incidentChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="popular-card animate-in">
+                    <div class="popular-info">
+                        <h4>Mineral Distribution</h4>
+                        <p>Types of minerals mined.</p>
+                    </div>
+                    <div class="popular-chart">
+                        <canvas id="mineralChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="popular-card animate-in">
+                    <div class="popular-info">
+                        <h4>Severity Dist.</h4>
+                        <p>Risk levels of incidents.</p>
+                    </div>
+                    <div class="popular-chart">
+                        <canvas id="severityChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="popular-card animate-in">
+                    <div class="popular-info">
+                        <h4>State-wise</h4>
+                        <p>Incidents by location.</p>
+                    </div>
+                    <div class="popular-chart">
+                        <canvas id="stateChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─── ANALYZE VIEW ─── -->
+        <section class="view-section" id="viewAnalyze">
+            <div class="upload-section">
+                <div class="upload-card card">
+                    <div class="upload-card-header">
+                        <h2><span class="icon">🛰️</span> Satellite Image Analysis</h2>
+                        <span class="upload-badge badge-info">Sentinel-2 Compatible</span>
+                    </div>
+
+                    <!-- Drop Zone -->
+                    <div class="drop-zone" id="dropZone">
+                        <div class="drop-zone-icon">📡</div>
+                        <h3>Drop satellite image here</h3>
+                        <p>Supports PNG, JPG, TIFF — Sentinel-2 imagery recommended (10m resolution)</p>
+                        <button class="browse-btn" id="browseBtn" type="button">Browse Files</button>
+                        <input type="file" id="fileInput" accept=".png,.jpg,.jpeg,.tif,.tiff,.bmp">
+                        <div class="sample-images-bar" style="margin-top: 1.25rem; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: center; z-index: 5; position: relative;">
+                            <span style="font-size: 0.75rem; color: var(--text-muted); width: 100%; text-align: center; margin-bottom: 2px;">⚡ Or load instant demo satellite imagery:</span>
+                            <button type="button" class="btn-sample" data-sample="sample_images/1_active_iron_ore_mine.png" data-name="1_active_iron_ore_mine.png">⛏️ Iron Ore Mine</button>
+                            <button type="button" class="btn-sample" data-sample="sample_images/2_dense_forest_no_mining.png" data-name="2_dense_forest_no_mining.png">🌲 Dense Forest</button>
+                            <button type="button" class="btn-sample" data-sample="sample_images/3_illegal_sand_mining_river.png" data-name="3_illegal_sand_mining_river.png">🌊 River Sand Mining</button>
+                            <button type="button" class="btn-sample" data-sample="sample_images/4_mixed_forest_quarry.png" data-name="4_mixed_forest_quarry.png">⛰️ Forest Quarry</button>
+                        </div>
+                    </div>
+
+                    <!-- Image Preview -->
+                    <div class="image-preview-container" id="previewContainer">
+                        <div class="preview-box">
+                            <div class="preview-header">
+                                <span>📷</span> Original Satellite Image
+                            </div>
+                            <img id="originalPreview" alt="Original satellite image">
+                        </div>
+                        <div class="preview-box">
+                            <div class="preview-header">
+                                <span>🔥</span> Change Detection Map
+                            </div>
+                            <img id="changeMapPreview" alt="Change detection overlay">
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="action-row" id="actionRow" style="display:none;">
+                        <button class="btn-analyze" id="analyzeBtn" disabled>
+                            <span class="spinner" style="display:none;" id="analyzeSpinner"></span>
+                            <span id="analyzeBtnText">🔬 Analyze for Mining Activity</span>
+                        </button>
+                        <button class="btn-secondary" id="clearBtn">✕ Clear</button>
+                        <span style="color: var(--text-muted); font-size: 0.8rem;" id="fileInfo"></span>
+                    </div>
+
+                    <!-- Progress -->
+                    <div class="analysis-progress" id="progressSection">
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" id="progressBar"></div>
+                        </div>
+                        <div class="progress-steps">
+                            <div class="progress-step" id="step1"><div class="step-dot"></div> Loading Image</div>
+                            <div class="progress-step" id="step2"><div class="step-dot"></div> Extracting Features</div>
+                            <div class="progress-step" id="step3"><div class="step-dot"></div> ML Classification</div>
+                            <div class="progress-step" id="step4"><div class="step-dot"></div> Cross-Referencing</div>
+                            <div class="progress-step" id="step5"><div class="step-dot"></div> Generating Report</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="results-section" id="resultsSection">
+                <!-- Summary Banner -->
+                <div class="summary-header card" id="summaryHeader">
+                    <div class="summary-risk high" id="summaryRisk">
+                        <div class="risk-score" id="riskScore">—</div>
+                        <div class="risk-label">Risk</div>
+                    </div>
+                    <div class="summary-info">
+                        <h2 id="summaryTitle">Analysis Complete</h2>
+                        <p id="summaryDesc">Processed in — seconds</p>
+                        <div class="summary-stats">
+                            <div class="summary-stat">
+                                <div class="summary-stat-value" id="sumDisturbances">0</div>
+                                <div class="summary-stat-label">Disturbances</div>
+                            </div>
+                            <div class="summary-stat">
+                                <div class="summary-stat-value" style="color: var(--accent-red);" id="sumIllegal">0</div>
+                                <div class="summary-stat-label">Illegal</div>
+                            </div>
+                            <div class="summary-stat">
+                                <div class="summary-stat-value" style="color: var(--accent-green);" id="sumLegal">0</div>
+                                <div class="summary-stat-label">Legal</div>
+                            </div>
+                            <div class="summary-stat">
+                                <div class="summary-stat-value" id="sumArea">0</div>
+                                <div class="summary-stat-label">Area (sq km)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results Grid -->
+                <div class="results-grid two-col" style="margin-top: 1.5rem;">
+                    <!-- Detection Map -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>🗺️ Detection Map</h3>
+                            <span class="upload-badge badge-info" id="mapBadge">Interactive</span>
+                        </div>
+                        <div class="card-body" style="padding: 0;">
+                            <div class="map-container">
+                                <div id="detectionMap"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Disturbance List -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>🚨 Detected Disturbances</h3>
+                            <span class="upload-badge badge-danger" id="distCount">0 found</span>
+                        </div>
+                        <div class="card-body" style="padding: 0;">
+                            <div class="disturbance-list" id="disturbanceList">
+                                <div class="empty-state">
+                                    <div class="empty-icon">🔍</div>
+                                    <h3>No results yet</h3>
+                                    <p>Upload and analyze a satellite image to detect mining disturbances</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Spectral & Metrics -->
+                <div class="results-grid two-col" style="margin-top: 1.5rem;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>🌈 Spectral Indices</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="indices-grid" id="indicesGrid">
+                                <div class="index-item">
+                                    <div class="index-name">NDVI (Vegetation)</div>
+                                    <div class="index-value neutral" id="idxNdvi">—</div>
+                                    <div class="index-bar"><div class="index-bar-fill" id="idxNdviBar" style="width:0; background: var(--accent-green);"></div></div>
+                                </div>
+                                <div class="index-item">
+                                    <div class="index-name">BSI (Bare Soil)</div>
+                                    <div class="index-value neutral" id="idxBsi">—</div>
+                                    <div class="index-bar"><div class="index-bar-fill" id="idxBsiBar" style="width:0; background: var(--accent-amber);"></div></div>
+                                </div>
+                                <div class="index-item">
+                                    <div class="index-name">NDWI (Water)</div>
+                                    <div class="index-value neutral" id="idxNdwi">—</div>
+                                    <div class="index-bar"><div class="index-bar-fill" id="idxNdwiBar" style="width:0; background: var(--accent-blue);"></div></div>
+                                </div>
+                                <div class="index-item">
+                                    <div class="index-name">Soil Index</div>
+                                    <div class="index-value neutral" id="idxSoil">—</div>
+                                    <div class="index-bar"><div class="index-bar-fill" id="idxSoilBar" style="width:0; background: var(--accent-red);"></div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>📊 Evaluation Metrics</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="metrics-grid">
+                                <div class="metric-item">
+                                    <div class="metric-value" id="metRecall">—</div>
+                                    <div class="metric-label">Detection Recall</div>
+                                </div>
+                                <div class="metric-item">
+                                    <div class="metric-value" id="metFPR">—</div>
+                                    <div class="metric-label">False Positive Rate</div>
+                                </div>
+                                <div class="metric-item">
+                                    <div class="metric-value" id="metAccuracy">—</div>
+                                    <div class="metric-label">Coord Accuracy (m)</div>
+                                </div>
+                                <div class="metric-item">
+                                    <div class="metric-value" id="metLatency">—</div>
+                                    <div class="metric-label">Report Latency (s)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Incident Report -->
+                <div class="card" style="margin-top: 1.5rem;">
+                    <div class="card-header">
+                        <h3>📄 Auto-Generated Incident Report</h3>
+                        <span class="upload-badge badge-success">Ready</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="report-content" id="reportContent">No report generated yet.</div>
+                        <div class="report-actions">
+                            <button class="btn-report primary" id="downloadPdfBtn">📥 Download PDF Report</button>
+                            <button class="btn-report outline" id="copyReportBtn">📋 Copy to Clipboard</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─── MAP VIEW ─── -->
+        <section class="view-section" id="viewMap">
+            <div class="stats-row" style="margin-bottom: 1rem;">
+                <div class="featured-card">
+                    <div class="featured-content" style="padding: 1rem;">
+                        <h4><span class="stat-icon">📍</span> Historical Incidents</h4>
+                        <div class="stat-value" id="mapIncidents" style="font-size: 2rem;">25</div>
+                    </div>
+                </div>
+                <div class="featured-card">
+                    <div class="featured-content" style="padding: 1rem;">
+                        <h4><span class="stat-icon">⛏️</span> Mining Leases</h4>
+                        <div class="stat-value" id="mapLeases" style="font-size: 2rem;">20</div>
+                    </div>
+                </div>
+                <div class="featured-card">
+                    <div class="featured-content" style="padding: 1rem;">
+                        <h4><span class="stat-icon">🌲</span> Protected Zones</h4>
+                        <div class="stat-value" id="mapZones" style="font-size: 2rem;">8</div>
+                    </div>
+                </div>
+            </div>
+            <div class="full-map-container card" style="padding: 0; overflow: hidden; border-radius: var(--radius-xl);">
+                <div id="fullMap"></div>
+            </div>
+        </section>
+
+        <!-- ─── GOVT RECORDS VIEW ─── -->
+        <section class="view-section" id="viewRecords">
+            <div class="card">
+                <div class="card-header">
+                    <h3>🏛️ Official Mining Lease Records (Government of India)</h3>
+                    <span class="upload-badge badge-info" id="leaseCountBadge">20 Records</span>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                    <div class="records-table-container" style="max-height: 600px; overflow-y: auto;">
+                        <table class="records-table" id="leasesTable">
+                            <thead>
+                                <tr>
+                                    <th>Lease ID</th>
+                                    <th>Company</th>
+                                    <th>Mineral</th>
+                                    <th>District</th>
+                                    <th>State</th>
+                                    <th>Area (sq km)</th>
+                                    <th>Status</th>
+                                    <th>Valid Until</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leasesTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 1.5rem;">
+                <div class="card-header">
+                    <h3>🛡️ Protected Zones & No-Mining Areas</h3>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                    <div class="records-table-container" style="max-height: 400px; overflow-y: auto;">
+                        <table class="records-table" id="zonesTable">
+                            <thead>
+                                <tr>
+                                    <th>Zone ID</th>
+                                    <th>Name</th>
+                                    <th>Type</th>
+                                    <th>District</th>
+                                    <th>State</th>
+                                    <th>Radius (km)</th>
+                                    <th>Status</th>
+                                    <th>Notification</th>
+                                </tr>
+                            </thead>
+                            <tbody id="zonesTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─── REPORTS VIEW ─── -->
+        <section class="view-section" id="viewReports">
+            <div class="card">
+                <div class="card-header">
+                    <h3>📄 Analysis History</h3>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                    <div id="reportsListContainer">
+                        <div class="empty-state">
+                            <div class="empty-icon">📄</div>
+                            <h3>No reports yet</h3>
+                            <p>Analyze satellite images to generate incident reports</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ─── RIGHT SIDEBAR ─── -->
+    <aside class="right-sidebar">
+        <div class="profile-section">
+            <div class="profile-avatar">
+                <div class="avatar-ring"></div>
+                <img src="https://ui-avatars.com/api/?name=Operator+One&background=8b5cf6&color=fff" alt="Profile">
+            </div>
+            <h4>Operator Alpha</h4>
+            <p>@geo_admin</p>
+        </div>
+
+        <div class="sidebar-widget">
+            <div class="widget-header">
+                <h4>Recent Incidents</h4>
+                <a href="#">See all</a>
+            </div>
+            <div class="widget-list">
+                <div class="widget-item">
+                    <div class="widget-icon" style="background: rgba(239,68,68,0.2); color: var(--accent-red);">🚨</div>
+                    <div class="widget-item-info">
+                        <h5>Illegal Mining</h5>
+                        <p>5 min ago</p>
+                    </div>
+                </div>
+                <div class="widget-item">
+                    <div class="widget-icon" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">✅</div>
+                    <div class="widget-item-info">
+                        <h5>Scan Completed</h5>
+                        <p>12 min ago</p>
+                    </div>
+                </div>
+                <div class="widget-item">
+                    <div class="widget-icon" style="background: rgba(239,68,68,0.2); color: var(--accent-red);">🚨</div>
+                    <div class="widget-item-info">
+                        <h5>Zone Violation</h5>
+                        <p>1 hr ago</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-widget">
+            <div class="widget-header">
+                <h4>System Activity</h4>
+                <a href="#">See all</a>
+            </div>
+            <div class="widget-list">
+                <div class="widget-item">
+                    <div class="widget-icon" style="background: rgba(139,92,246,0.2); color: var(--accent-purple);">🔄</div>
+                    <div class="widget-item-info">
+                        <h5>Model Sync</h5>
+                        <p>Updated weights</p>
+                    </div>
+                </div>
+                <div class="widget-item">
+                    <div class="widget-icon" style="background: rgba(59,130,246,0.2); color: var(--accent-blue);">📡</div>
+                    <div class="widget-item-info">
+                        <h5>Satellite Feed</h5>
+                        <p>Connected</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+</div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

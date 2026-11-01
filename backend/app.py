@@ -22,7 +22,11 @@ from database import (
     save_metrics, get_all_reports, get_report_by_id, get_stats
 )
 
-app = Flask(__name__, static_folder='../frontend', static_url_path='')
+STATIC_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'frontend'))
+if not os.path.exists(os.path.join(STATIC_DIR, 'index.html')):
+    STATIC_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+
+app = Flask(__name__, static_folder=STATIC_DIR, static_url_path='')
 CORS(app)
 
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads')
