@@ -431,10 +431,36 @@ function handleFile(file) {
 
     selectedFile = file;
 
+    // Reset alert
+    const alertBox = document.getElementById('invalidImageAlert');
+    if (alertBox) alertBox.style.display = 'none';
+
     // Show preview
     const reader = new FileReader();
     reader.onload = (e) => {
-        document.getElementById('originalPreview').src = e.target.result;
+        const previewImg = document.getElementById('originalPreview');
+        previewImg.onload = () => {
+            const check = validateSatelliteImageCanvas(previewImg);
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const analyzeBtnText = document.getElementById('analyzeBtnText');
+
+            if (!check.valid) {
+                if (alertBox) {
+                    document.getElementById('invalidAlertMsg').textContent = check.reason;
+                    alertBox.style.display = 'flex';
+                }
+                analyzeBtn.disabled = true;
+                analyzeBtn.classList.add('btn-disabled-invalid');
+                analyzeBtnText.textContent = '⚠️ Invalid Input Image';
+                showToast('⚠️ Invalid Input: Non-satellite image detected.');
+            } else {
+                if (alertBox) alertBox.style.display = 'none';
+                analyzeBtn.disabled = false;
+                analyzeBtn.classList.remove('btn-disabled-invalid');
+                analyzeBtnText.textContent = '🔬 Analyze for Mining Activity';
+            }
+        };
+        previewImg.src = e.target.result;
         document.getElementById('changeMapPreview').src = '';
         document.getElementById('changeMapPreview').alt = 'Will be generated after analysis';
     };
@@ -443,7 +469,6 @@ function handleFile(file) {
     // Show action row
     document.getElementById('previewContainer').classList.add('visible');
     document.getElementById('actionRow').style.display = 'flex';
-    document.getElementById('analyzeBtn').disabled = false;
     document.getElementById('fileInfo').textContent =
         `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
 
@@ -493,11 +518,97 @@ function clearUpload() {
     document.getElementById('actionRow').style.display = 'none';
     document.getElementById('resultsSection').classList.remove('visible');
     document.getElementById('progressSection').classList.remove('visible');
+    const alertBox = document.getElementById('invalidImageAlert');
+    if (alertBox) alertBox.style.display = 'none';
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    if (analyzeBtn) {
+        analyzeBtn.disabled = true;
+        analyzeBtn.classList.remove('btn-disabled-invalid');
+        document.getElementById('analyzeBtnText').textContent = '🔬 Analyze for Mining Activity';
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  IN-BROWSER SATELLITE ANALYSIS ENGINE (FALLBACK & GITHUB PAGES)
+//  SATELLITE IMAGE VALIDATION & IN-BROWSER DETECTION ENGINE
 // ═══════════════════════════════════════════════════════════════
+function validateSatelliteImageCanvas(imgElement) {
+    if (!imgElement || !imgElement.naturalWidth) {
+        return { valid: true };
+    }
+
+    try {
+        const canvas = document.createElement('canvas');
+        canvas.width = 128;
+        canvas.height = 128;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(imgElement, 0, 0, 128, 128);
+
+        const imgData = ctx.getImageData(0, 0, 128, 128);
+        const data = imgData.data;
+        const totalPixels = 128 * 128;
+
+        let whiteCount = 0;
+        let monochromeCount = 0;
+        let totalSat = 0;
+        let totalBrightness = 0;
+
+        for (let i = 0; i < data.length; i += 4) {
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+
+            // White pixel check (documents, tables, paper screenshots have white background)
+            if (r > 225 && g > 225 && b > 225) {
+                whiteCount++;
+            }
+
+            const max = Math.max(r, g, b);
+            const min = Math.min(r, g, b);
+            const sat = max > 0 ? (max - min) / max : 0;
+            totalSat += sat;
+            totalBrightness += max;
+
+            // Monochrome / grayscale pixel check (|R-G| < 15 && |G-B| < 15)
+            if (Math.abs(r - g) < 15 && Math.abs(g - b) < 15 && Math.abs(r - b) < 15) {
+                monochromeCount++;
+            }
+        }
+
+        const whiteRatio = whiteCount / totalPixels;
+        const monoRatio = monochromeCount / totalPixels;
+        const avgSat = totalSat / totalPixels;
+        const avgBrightness = totalBrightness / totalPixels;
+
+        // 1. Document / table / paper screenshot test (white background > 30%)
+        if (whiteRatio > 0.30) {
+            return {
+                valid: false,
+                reason: 'Document, table, or paper text screenshot detected (excessive white background). This is not satellite earth observation imagery.'
+            };
+        }
+
+        // 2. Grayscale document, code editor, or monochrome graphic test
+        if (monoRatio > 0.70 && avgBrightness > 160) {
+            return {
+                valid: false,
+                reason: 'Document, diagram, or monochrome graphic detected. This is not satellite or aerial surveillance imagery.'
+            };
+        }
+
+        // 3. Low-saturation synthetic graphic check
+        if (avgSat < 0.08 && monoRatio > 0.80) {
+            return {
+                valid: false,
+                reason: 'Image lacks natural earth terrain color variation. Please upload Sentinel-2, Landsat, or aerial surveillance imagery.'
+            };
+        }
+
+        return { valid: true };
+    } catch (e) {
+        console.warn('Canvas pixel validation bypassed:', e);
+        return { valid: true };
+    }
+}
 function generateChangeDetectionHeatmap(imgElement, disturbances) {
     const canvas = document.createElement('canvas');
     canvas.width = 512;
@@ -562,6 +673,12 @@ function generateChangeDetectionHeatmap(imgElement, disturbances) {
 }
 
 async function runClientSideSatelliteAnalysis(file) {
+    const imgElement = document.getElementById('originalPreview');
+    const check = validateSatelliteImageCanvas(imgElement);
+    if (!check.valid) {
+        throw new Error(check.reason);
+    }
+
     const name = file.name.toLowerCase();
     
     let center = { lat: 15.1394, lng: 76.9214, region: 'Bellary, Karnataka' };
@@ -789,6 +906,22 @@ async function runClientSideSatelliteAnalysis(file) {
 async function analyzeImage() {
     if (!selectedFile) return;
 
+    // Strict satellite image validation before analysis
+    const previewImg = document.getElementById('originalPreview');
+    const check = validateSatelliteImageCanvas(previewImg);
+    const alertBox = document.getElementById('invalidImageAlert');
+
+    if (!check.valid) {
+        if (alertBox) {
+            document.getElementById('invalidAlertMsg').textContent = check.reason;
+            alertBox.style.display = 'flex';
+        }
+        showToast('❌ Invalid Input: The image is not satellite or aerial imagery.');
+        return;
+    }
+
+    if (alertBox) alertBox.style.display = 'none';
+
     const btn = document.getElementById('analyzeBtn');
     const spinner = document.getElementById('analyzeSpinner');
     const btnText = document.getElementById('analyzeBtnText');
@@ -820,10 +953,24 @@ async function analyzeImage() {
                 });
                 clearTimeout(timeoutId);
 
+                if (response.status === 400) {
+                    const err = await response.json();
+                    if (err.invalid_input) {
+                        if (alertBox) {
+                            document.getElementById('invalidAlertMsg').textContent = err.error;
+                            alertBox.style.display = 'flex';
+                        }
+                        throw new Error(err.error);
+                    }
+                }
+
                 if (response.ok) {
                     result = await response.json();
                 }
             } catch (err) {
+                if (err.message && err.message.includes('Invalid Input')) {
+                    throw err;
+                }
                 console.warn('Backend unavailable, running client-side satellite analysis:', err);
             }
         }
@@ -842,7 +989,10 @@ async function analyzeImage() {
 
     } catch (err) {
         console.error('Analysis error:', err);
-        showToast('❌ Analysis failed: ' + err.message);
+        const progress = document.getElementById('progressSection');
+        if (progress) progress.classList.remove('visible');
+        if (window._progressInterval) clearInterval(window._progressInterval);
+        showToast('❌ ' + err.message);
     } finally {
         btn.disabled = false;
         spinner.style.display = 'none';

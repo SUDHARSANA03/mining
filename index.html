@@ -253,6 +253,18 @@
                         <span style="color: var(--text-muted); font-size: 0.8rem;" id="fileInfo"></span>
                     </div>
 
+                    <!-- Invalid Input Warning Alert -->
+                    <div class="invalid-image-alert" id="invalidImageAlert" style="display:none;">
+                        <div class="invalid-alert-icon">⚠️</div>
+                        <div class="invalid-alert-body">
+                            <h4>Invalid Input Image</h4>
+                            <p id="invalidAlertMsg">The uploaded file does not appear to be a satellite or aerial terrain image. Please upload Sentinel-2, Landsat, or aerial surveillance imagery.</p>
+                            <div class="invalid-alert-tips">
+                                <span>💡 Tip: Select one of the instant satellite test buttons above (e.g. ⛏️ Iron Ore Mine or 🌲 Dense Forest).</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Progress -->
                     <div class="analysis-progress" id="progressSection">
                         <div class="progress-bar-container">

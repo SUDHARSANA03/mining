@@ -75,8 +75,11 @@ def analyze_image():
     with open(filepath, 'wb') as f:
         f.write(image_bytes)
 
-    # Run ML analysis
-    analysis_result = detection_model.analyze_image(image_bytes)
+    # Run ML analysis with validation
+    try:
+        analysis_result = detection_model.analyze_image(image_bytes)
+    except ValueError as e:
+        return jsonify({'error': str(e), 'invalid_input': True}), 400
 
     # Generate change detection map
     change_map_bytes = detection_model.generate_change_map(image_bytes)

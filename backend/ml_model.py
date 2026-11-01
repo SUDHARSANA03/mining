@@ -228,11 +228,52 @@ class MiningDetectionModel:
 
         return features
 
+    def validate_satellite_image(self, image):
+        """
+        Validates whether the image exhibits satellite/aerial earth observation properties.
+        Rejects documents, tables, paper screenshots, text diagrams, and non-terrain graphics.
+        """
+        if isinstance(image, (bytes, bytearray)):
+            img = Image.open(io.BytesIO(image)).convert('RGB')
+        elif isinstance(image, Image.Image):
+            img = image.convert('RGB')
+        else:
+            img = Image.fromarray(image).convert('RGB')
+
+        img_thumb = img.copy()
+        img_thumb.thumbnail((256, 256), Image.BILINEAR)
+        arr = np.array(img_thumb, dtype=np.float32)
+        r, g, b = arr[:, :, 0], arr[:, :, 1], arr[:, :, 2]
+
+        white_ratio = float(np.mean((r > 230) & (g > 230) & (b > 230)))
+        max_c = np.maximum(np.maximum(r, g), b)
+        min_c = np.minimum(np.minimum(r, g), b)
+        sat = np.where(max_c > 0, (max_c - min_c) / (max_c + 1e-5), 0)
+        avg_sat = float(np.mean(sat))
+        mono_ratio = float(np.mean(sat < 0.12))
+        brightness = float(np.mean(max_c))
+
+        if white_ratio > 0.35:
+            return False, "Detected document, table, or text screenshot (excessive white background)."
+
+        if mono_ratio > 0.70 and brightness > 175:
+            return False, "Detected document, chart, or text graphic (monochrome on bright background)."
+
+        if avg_sat < 0.08 and mono_ratio > 0.80:
+            return False, "Image lacks natural terrain color variation."
+
+        return True, "Valid satellite/aerial terrain imagery."
+
     def analyze_image(self, image_bytes):
         """
         Analyze a satellite image for mining activity.
         Returns detected disturbances with probability scores.
         """
+        # Validate that image is actually a satellite / aerial terrain image
+        is_valid, reason = self.validate_satellite_image(image_bytes)
+        if not is_valid:
+            raise ValueError(f"Invalid Input: {reason} Please upload Sentinel-2, Landsat, or aerial surveillance imagery.")
+
         # Load image
         img = Image.open(io.BytesIO(image_bytes)).convert('RGB')
 

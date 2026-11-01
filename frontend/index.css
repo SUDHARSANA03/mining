@@ -1931,3 +1931,56 @@ body.login-active {
     box-shadow: 0 4px 12px rgba(0, 212, 255, 0.25);
 }
 
+/* Invalid Input Warning Alert */
+.invalid-image-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 16px 20px;
+    margin-top: 14px;
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.45);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 20px rgba(239, 68, 68, 0.15);
+    animation: alertSlideIn 0.3s ease forwards;
+}
+
+.invalid-alert-icon {
+    font-size: 2rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.invalid-alert-body h4 {
+    color: #f87171;
+    font-size: 0.98rem;
+    font-weight: 700;
+    margin: 0 0 4px 0;
+}
+
+.invalid-alert-body p {
+    color: #fecaca;
+    font-size: 0.85rem;
+    line-height: 1.45;
+    margin: 0 0 6px 0;
+}
+
+.invalid-alert-tips {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+
+.btn-analyze.btn-disabled-invalid {
+    background: rgba(239, 68, 68, 0.25) !important;
+    border-color: rgba(239, 68, 68, 0.5) !important;
+    color: #fca5a5 !important;
+    cursor: not-allowed !important;
+    box-shadow: none !important;
+}
+
+@keyframes alertSlideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
